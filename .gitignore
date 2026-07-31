@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Build output
+dist/
+build/
+
+# Deployment
+.vercel/
+.railway/
+
+# Local development secrets
+.codespaces/shared/.env-secrets
+.codespaces/shared/.user-secrets.json
+.codespaces/shared/user-secrets-envs.json

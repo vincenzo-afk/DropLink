@@ -1,0 +1,9 @@
+{
+  "steps": [
+    {
+      "name": "Running postCreateCommand...",
+      "status": "succeeded",
+      "stepDetail": "/usr/local/share/pull-git-lfs-artifacts.sh"
+    }
+  ]
+}

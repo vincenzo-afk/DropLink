@@ -1,0 +1,9 @@
+👋 Welcome to Codespaces! You are on our default image. This includes the latest versions of:
+  - Python
+  - Node.js
+  - Docker
+  - And more! To see the full list, go here: https://aka.ms/ghcs-default-image.
+
+🔍 To explore VS Code to its fullest, search using the Command Palette (Cmd/Ctrl + Shift + P)
+
+📝 Edit away, then run your build command to see your code running in the browser.

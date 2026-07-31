@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Room — DropLink</title>
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="navbar__brand">
+      <img src="assets/logo.svg" alt="" width="30" height="30" />
+      <span class="navbar__brand-name">DropLink</span>
+    </a>
+    <div class="navbar__actions">
+      <button id="themeToggle" class="icon-btn" type="button" title="Toggle dark / light" aria-label="Toggle theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+        </svg>
+      </button>
+      <button id="leaveRoomBtn" class="btn btn--ghost btn--small" type="button">Leave room</button>
+      <a href="https://github.com/vincenzo-afk/droplink" target="_blank" rel="noopener noreferrer" class="icon-btn" title="View on GitHub" aria-label="View source on GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 .5C5.73.5.98 5.24.98 11.52c0 5.02 3.25 9.28 7.77 10.78.57.1.78-.25.78-.55 0-.27-.01-1.16-.02-2.1-3.16.69-3.83-1.34-3.83-1.34-.52-1.31-1.26-1.66-1.26-1.66-1.03-.7.08-.69.08-.69 1.14.08 1.74 1.17 1.74 1.17 1.01 1.73 2.65 1.23 3.3.94.1-.73.4-1.23.72-1.51-2.52-.29-5.17-1.26-5.17-5.6 0-1.24.44-2.25 1.17-3.04-.12-.29-.51-1.45.11-3.02 0 0 .96-.31 3.14 1.16a10.9 10.9 0 0 1 2.86-.39c.97 0 1.95.13 2.86.39 2.18-1.47 3.14-1.16 3.14-1.16.62 1.57.23 2.73.11 3.02.73.79 1.17 1.8 1.17 3.04 0 4.35-2.65 5.31-5.18 5.59.41.36.77 1.06.77 2.14 0 1.54-.01 2.79-.01 3.17 0 .3.2.66.79.55A11.03 11.03 0 0 0 23.02 11.5C23.02 5.24 18.27.5 12 .5Z"/>
+        </svg>
+      </a>
+    </div>
+  </nav>
+
+  <div class="room-shell">
+    <!-- Sidebar: room info -->
+    <aside class="panel glass">
+      <div>
+        <div class="panel__title">Room code</div>
+        <div class="room-code-display">
+          <span id="roomCodeValue" class="room-code-display__value">DL-…</span>
+          <div class="room-code-display__actions">
+            <button id="copyCodeBtn" class="btn btn--ghost btn--small" type="button">Copy code</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="qr-wrap">
+        <div id="qrCode"></div>
+        <button id="qrDownloadBtn" class="btn btn--ghost btn--small" type="button">Download QR</button>
+      </div>
+
+      <div class="status-line">
+        <span id="statusDot" class="status-dot status-dot--connecting"></span>
+        <span id="statusText">Connecting…</span>
+      </div>
+
+      <div>
+        <div class="panel__title">In this room (<span id="userCount">0</span>)</div>
+        <ul id="userList" class="user-list"></ul>
+      </div>
+    </aside>
+
+    <!-- Main: transfer -->
+    <section class="main-column">
+      <div class="panel glass">
+        <div id="dropZone" class="drop-zone">
+          <span class="drop-zone__icon">⇪</span>
+          <strong>Drag &amp; drop files here</strong>
+          <span class="empty-hint">or use a button below — sent directly, never stored</span>
+          <div class="drop-zone__actions">
+            <button type="button" class="btn btn--secondary btn--small" onclick="event.stopPropagation()" id="pickFilesBtn">Choose files</button>
+            <button type="button" class="btn btn--secondary btn--small" onclick="event.stopPropagation()" id="pickFolderBtn">Choose folder</button>
+          </div>
+          <input type="file" id="fileInput" multiple hidden />
+          <input type="file" id="folderInput" webkitdirectory directory multiple hidden />
+        </div>
+      </div>
+
+      <div class="panel glass">
+        <div class="panel__title">Transfers</div>
+        <div id="transferList" class="transfer-list"></div>
+      </div>
+
+      <div class="panel glass">
+        <div class="panel__title">Received</div>
+        <div id="receivedList" class="received-list"></div>
+      </div>
+    </section>
+
+    <!-- Chat -->
+    <section class="panel glass chat-panel">
+      <div class="panel__title">Chat</div>
+      <div id="chatMessages" class="chat-messages"></div>
+      <form id="chatForm" class="chat-form">
+        <input id="chatInput" type="text" placeholder="Message this room…" autocomplete="off" maxlength="1000" />
+        <button class="btn btn--primary btn--small" type="submit">Send</button>
+      </form>
+    </section>
+  </div>
+
+  <div id="toastHost" class="toast-host"></div>
+
+  <script>
+    document.getElementById('pickFilesBtn').addEventListener('click', () => document.getElementById('fileInput').click());
+    document.getElementById('pickFolderBtn').addEventListener('click', () => document.getElementById('folderInput').click());
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <script src="js/crypto.js"></script>
+  <script src="js/webrtc.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/room.js"></script>
+</body>
+</html>
