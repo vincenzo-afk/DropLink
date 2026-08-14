@@ -12,7 +12,15 @@
   const params = new URLSearchParams(window.location.search);
   const action = params.get('action'); // 'create' | 'join'
   const requestedCode = (params.get('code') || '').toUpperCase();
-  const username = params.get('username') || `Guest-${Math.floor(1000 + Math.random() * 9000)}`;
+  // Client-side sanitization mirrors the server's (signaling.js sanitizeUsername):
+  // trimmed, non-empty fallback, capped length. Prevents blank or overlong
+  // display names from reaching the server.
+  const MAX_USERNAME_LENGTH = 32;
+  const rawUsername = params.get('username') || '';
+  let username = rawUsername.trim().slice(0, MAX_USERNAME_LENGTH);
+  if (!username) {
+    username = `Guest-${Math.floor(1000 + Math.random() * 9000)}`;
+  }
 
   // ---- DOM refs ---------------------------------------------------------
   const el = {
@@ -119,12 +127,16 @@
         renderRoomCode(roomCode);
         renderQrCode(roomCode);
 
-        roomMembers.set(localUserId, `${username} (you)`);
+        // Use the server-sanitized username for our own "you" entry so the
+        // self label always matches what peers see (the URL param is not
+        // trusted — the server is the source of truth for display names).
+        const sanitizedSelfName = msg.username;
+        roomMembers.set(localUserId, `${sanitizedSelfName} (you)`);
         msg.peers.forEach((p) => roomMembers.set(p.userId, p.username));
         renderUserList();
 
         cryptoKey = await window.DropLinkCrypto.deriveRoomKey(roomCode);
-        webrtcManager = new window.DropLinkWebRTC.WebRTCManager(socket, localUserId, username, cryptoKey);
+        webrtcManager = new window.DropLinkWebRTC.WebRTCManager(socket, localUserId, sanitizedSelfName, cryptoKey);
         wireWebrtcEvents();
 
         // We are the "newcomer" relative to everyone already in the room,
@@ -306,8 +318,12 @@
       return;
     }
     Array.from(fileList).forEach((file) => {
-      const transferId = webrtcManager.sendFileToAll(file, null);
-      ensureTransferRow(transferId, { name: file.name, size: file.size, direction: 'send' });
+      // Folder drag-and-drop: the browser sets webkitRelativePath on files
+      // dropped from a folder (or picked via the folder input), so folder
+      // reconstruction works identically for drag-drop and the picker.
+      const relPath = file.webkitRelativePath || null;
+      const transferId = webrtcManager.sendFileToAll(file, relPath);
+      ensureTransferRow(transferId, { name: relPath || file.name, size: file.size, direction: 'send' });
     });
   }
 
