@@ -477,7 +477,20 @@
       folderBuckets.set(key, bucket);
     }
 
-    bucket.files.set(innerPath, blob);
+    // De-duplicate: if two sends produce the same relative path (e.g. the
+    // same folder dragged twice), keep both files under a suffixed name so
+    // the ZIP contents always match the displayed file count — the previous
+    // last-wins behavior showed "2 files" while the ZIP held 4.
+    let finalPath = innerPath;
+    if (bucket.files.has(finalPath)) {
+      const dot = finalPath.lastIndexOf('.');
+      const stem = dot > 0 ? finalPath.slice(0, dot) : finalPath;
+      const ext = dot > 0 ? finalPath.slice(dot) : '';
+      let k = 1;
+      while (bucket.files.has(`${stem}-${k}${ext}`)) k += 1;
+      finalPath = `${stem}-${k}${ext}`;
+    }
+    bucket.files.set(finalPath, blob);
     bucket.countEl.textContent = `${bucket.files.size} file${bucket.files.size === 1 ? '' : 's'}`;
   }
 

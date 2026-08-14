@@ -76,6 +76,11 @@
 
     if (joinRoomBtn && joinModal) {
       joinRoomBtn.addEventListener('click', () => {
+        // Clear any stale error from a previous attempt before showing
+        // the modal again (prevents an old validation message carrying
+        // over into a fresh join attempt).
+        showError(joinError, '');
+        if (joinCodeInput) joinCodeInput.value = '';
         joinModal.classList.add('is-open');
         if (joinCodeInput) joinCodeInput.focus();
       });
@@ -83,6 +88,12 @@
     if (joinModalClose && joinModal) {
       joinModalClose.addEventListener('click', () => joinModal.classList.remove('is-open'));
     }
+    // Escape closes the modal so it can be dismissed from the keyboard.
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && joinModal && joinModal.classList.contains('is-open')) {
+        joinModal.classList.remove('is-open');
+      }
+    });
     if (joinModal) {
       joinModal.addEventListener('click', (e) => {
         if (e.target === joinModal) joinModal.classList.remove('is-open');

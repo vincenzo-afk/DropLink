@@ -30,6 +30,10 @@ app.use(express.static(CLIENT_DIR));
 // Friendly explicit routes (static middleware already covers these, but
 // this keeps behavior obvious and deploy-target agnostic).
 app.get('/', (req, res) => res.sendFile(path.join(CLIENT_DIR, 'index.html')));
+
+// Browsers probe /favicon.ico automatically; point them at the real icon
+// instead of returning a 404 (which shows up as console noise in every tab).
+app.get('/favicon.ico', (req, res) => res.sendFile(path.join(CLIENT_DIR, 'assets', 'favicon.ico')));
 app.get('/room', (req, res) => res.sendFile(path.join(CLIENT_DIR, 'room.html')));
 
 app.get('/health', (req, res) => {
